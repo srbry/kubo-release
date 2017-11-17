@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 # Configuration to deploy release version of the Dashboard UI compatible with
 # Kubernetes 1.7.
 #
@@ -45,7 +44,7 @@ rules:
 - apiGroups: [""]
   resources: ["secrets"]
   # Allow Dashboard to get, update and delete 'kubernetes-dashboard-key-holder' secret.
-  resourceNames: ["kubernetes-dashboard-key-holder"]
+  resourceNames: ["kubernetes-dashboard-key-holder", "kubernetes-dashboard-certs"]
   verbs: ["get", "update", "delete"]
   # Allow Dashboard to get metrics from heapster.
 - apiGroups: [""]
@@ -70,6 +69,19 @@ subjects:
 
 ---
 <% end %>
+
+# ------------------- Dashboard Secret ------------------- #
+
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    k8s-app: kubernetes-dashboard
+  name: kubernetes-dashboard-certs
+  namespace: kube-system
+type: Opaque
+
+---
 # ------------------- Dashboard Deployment ------------------- #
 
 kind: Deployment
@@ -90,14 +102,21 @@ spec:
       labels:
         k8s-app: kubernetes-dashboard
     spec:
+      initContainers:
+      - name: kubernetes-dashboard-init
+        image: gcr.io/google_containers/kubernetes-dashboard-init-amd64:v1.0.1
+        volumeMounts:
+        - name: kubernetes-dashboard-certs
+          mountPath: /certs
       containers:
       - name: kubernetes-dashboard
         image: gcr.io/google_containers/kubernetes-dashboard-amd64:v1.7.1
         ports:
-        - containerPort: 9090
+        - containerPort: 8443
           protocol: TCP
         args:
-          - --heapster-host=http://heapster.kube-system.svc.cluster.local:80
+          - --tls-key-file=/certs/dashboard.key
+          - --tls-cert-file=/certs/dashboard.crt
           # Uncomment the following line to manually specify Kubernetes API server Host
           # If not specified, Dashboard will attempt to auto discover the API server and connect
           # to it. Uncomment only if the default does not work.
@@ -109,6 +128,9 @@ spec:
             value: /var/vcap/jobs/kubeconfig/config/kubeconfig-kubelet
 <% end %>
         volumeMounts:
+        - name: kubernetes-dashboard-certs
+          mountPath: /certs
+          readOnly: true
           # Create on-disk volume to store exec logs
         - mountPath: /tmp
           name: tmp-volume
@@ -118,11 +140,15 @@ spec:
 <% end %>
         livenessProbe:
           httpGet:
+            scheme: HTTPS
             path: /
-            port: 9090
+            port: 8443
           initialDelaySeconds: 30
           timeoutSeconds: 30
       volumes:
+      - name: kubernetes-dashboard-certs
+        secret:
+          secretName: kubernetes-dashboard-certs
       - name: tmp-volume
         emptyDir: {}
 <% if p('authorization-mode').downcase != 'rbac' %>
@@ -150,7 +176,7 @@ metadata:
   namespace: kube-system
 spec:
   ports:
-  - port: 80
-    targetPort: 9090
+    - port: 443
+      targetPort: 8443
   selector:
     k8s-app: kubernetes-dashboard
