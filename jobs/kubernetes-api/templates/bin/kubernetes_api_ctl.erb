@@ -77,7 +77,7 @@ start_kubernetes_api_server() {
       --tls-cert-file=/var/vcap/jobs/kubernetes-api/config/kubernetes.pem \
       --tls-private-key-file=/var/vcap/jobs/kubernetes-api/config/kubernetes-key.pem \
       --token-auth-file=/var/vcap/jobs/kubernetes-api/config/tokens.csv \
-      --storage-media-type=application/json \ <% if authorization_mode == 'rbac' %>
+      --storage-media-type=application/json \<% if authorization_mode == 'rbac' %>
       --requestheader-username-headers=X-Remote-User \
       --requestheader-group-headers=X-Remote-Group \
       --requestheader-extra-headers-prefix=X-Remote-Extra- \
@@ -85,7 +85,7 @@ start_kubernetes_api_server() {
       --client-ca-file=/var/vcap/jobs/kubernetes-api/config/kubernetes.pem \
       --requestheader-client-ca-file=/var/vcap/jobs/kubernetes-api/config/kubernetes.pem \
       --proxy-client-cert-file=/var/vcap/jobs/kubernetes-api/config/kubernetes.pem \
-      --proxy-client-private-key-file=/var/vcap/jobs/kubernetes-api/config/kubernetes-key.pem \ <% end %>
+      --proxy-client-key-file=/var/vcap/jobs/kubernetes-api/config/kubernetes-key.pem \<% end %>
       --v=2 \
     1>> $LOG_DIR/kubernetes_api.stdout.log \
     2>> $LOG_DIR/kubernetes_api.stderr.log
