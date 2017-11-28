@@ -16,6 +16,7 @@ packages:
 - cni
 - socat
 - govc
+- container_images
 
 properties:
   tls.kubelet:

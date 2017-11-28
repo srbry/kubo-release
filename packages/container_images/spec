@@ -1,0 +1,5 @@
+---
+name: container_images
+
+files:
+- container-images/*

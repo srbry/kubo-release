@@ -5,7 +5,7 @@
 kubectl="/var/vcap/packages/kubernetes/bin/kubectl --kubeconfig=/var/vcap/jobs/kubeconfig/config/kubeconfig-kubelet"
 
 DOCKER_SOCKET=unix:///var/vcap/sys/run/docker/docker.sock
-CONTAINER_IMAGE_DIR=/var/vcap/packages/kubernetes/container-images
+CONTAINER_IMAGE_DIR=/var/vcap/packages/container-images
 
 load_container() {
     path=$1

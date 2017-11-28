@@ -1,0 +1,11 @@
+set -e
+
+main() {
+  copy_depedencies_to_bosh
+}
+
+copy_depedencies_to_bosh() {
+  cp -a container-images/* "${BOSH_INSTALL_TARGET:?}"
+}
+
+main
