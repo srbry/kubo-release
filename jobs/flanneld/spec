@@ -15,3 +15,5 @@ properties: {}
 consumes:
 - name: etcd
   type: etcd_service
+- name: kubernetes-api
+  type: kubernetes-api
