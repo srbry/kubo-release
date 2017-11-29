@@ -14,6 +14,7 @@ templates:
   config/storage-class-gce.yml: config/storage-class-gce.yml
   config/kubeconfig.erb: config/kubeconfig
   config/ca.pem.erb: config/ca.pem
+  config/flannel.yml.erb: config/flannel.yml
 
 packages:
 - jq
