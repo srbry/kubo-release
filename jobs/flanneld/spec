@@ -3,6 +3,7 @@ name: flanneld
 
 templates:
   bin/flanneld_ctl.erb: bin/flanneld_ctl
+  config/cni-conf.json: config/cni-conf.json
 
 packages:
 - pid_utils

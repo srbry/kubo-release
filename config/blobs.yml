@@ -43,9 +43,9 @@ etcdctl:
   object_id: 32221476-5c3d-4ec7-5869-44c989cc3077
   sha: 11f0462cc86bf85332399a2fa584d5bb46d0cb2a
 flanneld:
-  size: 21599816
-  object_id: 2e653718-cede-4af5-73ea-d5774e7caad3
-  sha: 63076521f1ba5605fa5f97016072a4538d66740f
+  size: 34491768
+  object_id: a03b1d5e-b29a-4e69-71e6-4b340d233a0c
+  sha: 295bb0c688d3776998995050295aa922111ad7bf
 go/go1.9.2.linux-amd64.tar.gz:
   size: 104247844
   object_id: 9dd1786f-8cda-4ce4-4a95-6fe98ed237d5

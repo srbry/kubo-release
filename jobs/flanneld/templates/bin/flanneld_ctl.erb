@@ -39,13 +39,14 @@ start_flanneld() {
   mknod /dev/net/tun c 10 200 || true
   echo 1 > /proc/sys/net/ipv4/ip_forward
   mkdir -p /etc/cni/net.d
-  echo '{"name":"flannel-network","type":"flannel","delegate":{"isDefaultGateway": true}}' > /etc/cni/net.d/10-flannel.conf
+  cp /var/vcap/jobs/flannel/config/cni-conf.json /etc/cni/net.d/10-flannel.conf
 
-  /var/vcap/packages/etcdctl/etcdctl --endpoints <%= etcd_endpoints %> set /coreos.com/network/config '{"Network":"10.200.0.0/16","Backend":{"Type":"vxlan"}}'
+  # /var/vcap/packages/etcdctl/etcdctl --endpoints <%= etcd_endpoints %> set /coreos.com/network/config '{"Network":"10.200.0.0/16","Backend":{"Type":"vxlan"}}'
   # flanneld -etcd-endpoints="<%= etcd_endpoints %>" \
   #   1>> $LOG_DIR/flanneld.stdout.log \
   #   2>> $LOG_DIR/flanneld.stderr.log
-  flanneld -kube-subnet-mgr=true -kube-api-url= <%= kubernetes_api_url %> -kubeconfig-file=/var/vcap/jobs/kubeconfig/config/kubeconfig-kubelet \
+
+  flanneld -kube-subnet-mgr=true -kube-api-url=<%= kubernetes_api_url %> -kubeconfig-file=/var/vcap/jobs/kubeconfig/config/kubeconfig-kubelet \
     1>> $LOG_DIR/flanneld.stdout.log \
     2>> $LOG_DIR/flanneld.stderr.log
 }
