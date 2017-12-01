@@ -20,7 +20,6 @@ wait_for() {
 }
 
 main() {
-  apply_spec "flannel.yml"
   apply_spec "kubedns-svc.yml"
   apply_spec "kubedns-controller.yml"
   wait_for kube-dns

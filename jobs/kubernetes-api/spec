@@ -17,6 +17,8 @@ properties:
     description: The admin username for the Kubernetes cluster
   admin-password:
     description: The password for the admin account
+  flanneld-password:
+    description: The password for the flanneld user
   kubelet-password:
     description: The password for the kubelet user
   kube-proxy-password:
@@ -54,3 +56,4 @@ provides:
   - admin-username
   - admin-password
   - tls.kubernetes.ca
+  - authorization-mode

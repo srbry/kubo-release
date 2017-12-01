@@ -25,28 +25,39 @@ send_process_stderr_to_logfile() {
 }
 
 start_flanneld() {
-  <%
-    etcd_endpoints = link("etcd").instances.map do |instance|
-      "http://#{instance.address}:4001/"
-    end.join(',')
+  if [ -e /var/vcap/jobs/cloud-provider/bin/cloud-provider_utils ]; then
+    . /var/vcap/jobs/cloud-provider/bin/cloud-provider_utils
+    set_cloud_provider
+    cloud_config="/var/vcap/jobs/cloud-provider/config/cloud-provider.ini"
+  else
+    cloud_provider=""
+    cloud_config=""
+  fi
 
-    kubernetes_api_url = link("kubernetes-api").address
-  %>
+  if [ "gce" == "$cloud_provider" ]; then
+    hostname_override=$(curl http://metadata.google.internal/computeMetadata/v1/instance/name -H "Metadata-Flavor: Google")
+  else
+    hostname_override=<%= spec.ip %>
+  fi
 
   modprobe br_netfilter
 
   mkdir -p /dev/net
   mknod /dev/net/tun c 10 200 || true
   echo 1 > /proc/sys/net/ipv4/ip_forward
-  mkdir -p /etc/cni/net.d
+
+  mkdir -p /etc/cni/net.d /etc/kube-flannel
   cp /var/vcap/jobs/flanneld/config/cni-conf.json /etc/cni/net.d/10-flannel.conf
+  cp /var/vcap/jobs/flanneld/config/net-conf.json /etc/kube-flannel/net-conf.json
 
-  # /var/vcap/packages/etcdctl/etcdctl --endpoints <%= etcd_endpoints %> set /coreos.com/network/config '{"Network":"10.200.0.0/16","Backend":{"Type":"vxlan"}}'
-  # flanneld -etcd-endpoints="<%= etcd_endpoints %>" \
-  #   1>> $LOG_DIR/flanneld.stdout.log \
-  #   2>> $LOG_DIR/flanneld.stderr.log
+  export NODE_NAME="$hostname_override"
 
-  flanneld -kube-subnet-mgr=true -kube-api-url=<%= kubernetes_api_url %> -kubeconfig-file=/var/vcap/jobs/kubeconfig/config/kubeconfig-kubelet \
+  <% if link('kubernetes-api').p('authorization-mode').downcase == 'rbac' %>
+  kubectl="/var/vcap/packages/kubernetes/bin/kubectl --token '<%= link('kubernetes-api').p('admin-password') %>'"
+  ${kubectl} apply -f /var/vcap/jobs/flanneld/config/flanneld-rbac-policy.yml
+  <% end %>
+
+  flanneld -kube-subnet-mgr=true -kube-api-url=https://master.kubo:8443 -kubeconfig-file=/var/vcap/jobs/flanneld/config/kubeconfig \
     1>> $LOG_DIR/flanneld.stdout.log \
     2>> $LOG_DIR/flanneld.stderr.log
 }
