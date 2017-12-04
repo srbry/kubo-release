@@ -5,7 +5,6 @@ templates:
   bin/flanneld_ctl.erb: bin/flanneld_ctl
   config/ca.pem.erb: config/ca.pem
   config/cni-conf.json: config/cni-conf.json
-  config/flanneld-rbac-policy.yml: config/flanneld-rbac-policy.yml
   config/kubeconfig.erb: config/kubeconfig
   config/net-conf.json: config/net-conf.json
 
